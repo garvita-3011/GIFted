@@ -23,7 +23,7 @@ body{
     }
     .button {
       padding: 6px 16px;
-      font-size: 0.875rem;
+      font-size: 14px;
       min-width: 64px;
       font-weight: 500;
       line-height: 1.75;
@@ -46,39 +46,15 @@ body{
   }
   .gif-header {
     display: flex;
-    justify-content: center;
     font-size: 20px;
+    margin: 32px 0px 16px 70px;
   }
-  .main-container {
+  .loader-container {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    .gif-container {
-      position: relative;
-      margin: 1em;
-      .gif-overlay {
-        i {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 55px;
-          cursor: pointer;
-          z-index: 1;
-        }
-      }
-    }
-    .gif-view {
-      cursor: pointer;
-      &.elevation {
-        box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-      }
-    }
-    .opaque {
-      opacity: 1;
-    }
-    .transparent {
-      opacity: 0.8;
+    img {
+      height: 200px;
+      width: 300px;
     }
   }
 }

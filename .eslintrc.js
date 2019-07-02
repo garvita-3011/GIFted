@@ -38,6 +38,7 @@ module.exports = {
       "react/jsx-filename-extension": "off",
       "react/no-danger": "off",
       "react/no-unused-prop-types": "off",
+      "react/prop-types": "off",
       "indent": ["error", 2],
       "react/jsx-uses-vars": "error",
       "react/jsx-uses-react": "error",

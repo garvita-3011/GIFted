@@ -1,21 +1,21 @@
 @mixin menulines {
-  width: 1rem;
-  height: 0.1rem;
+  width: 20px;
+  height: 2px;
   background: white;
 }
 
-$topMenuLines: 0.5rem;
+$topMenuLines: 8px;
 
 body{
   margin: 0;
   padding: 0;
 }
 .menugroup{
-  height: 2rem;
-  width: 2rem;
-  border: 0.3rem solid white;
-  border-radius: 0.3rem; 
-  padding: 0.2rem;
+  height: 20px;
+  width: 20px;
+  border: 5px solid white;
+  border-radius: 5px; 
+  padding: 3px;
   animation: load 2s infinite alternate;
 }
 .menu{
