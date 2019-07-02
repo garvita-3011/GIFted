@@ -11,7 +11,7 @@ export default class Home extends React.PureComponent {
     this.state = {
       gifs: [],
       searchString: '',
-      loading: false,
+      loading: true,
       error: false,
       offset: 0,
       customSearch: false,
@@ -26,17 +26,40 @@ export default class Home extends React.PureComponent {
   }
 
   getTrendingGIFs = async () => {
-    const trending = await Service.fetchTrendingGIFs();
-    this.setState({
-      gifs: trending.data,
-      loading: false,
-      offset: 0
-    });
+    try {
+      const trending = await Service.fetchTrendingGIFs();
+      this.setState({
+        gifs: trending.data,
+        loading: false,
+        offset: 0,
+        customSearch: false,
+        error: false
+      });
+    } catch (e) {
+      this.setState({
+        error: true,
+        loading: false
+      });
+    }
   }
 
   searchGIF = (event) => {
     this.setState({
       searchString: event.target.value
+    }, () => {
+      // eslint-disable-next-line react/destructuring-assignment
+      if (!this.state.searchString) {
+        this.getTrendingGIFs();
+      }
+    });
+  }
+
+  clearSearch = () => {
+    this.setState({
+      searchString: '',
+      customSearch: false,
+    }, () => {
+      this.getTrendingGIFs();
     });
   }
 
@@ -56,18 +79,27 @@ export default class Home extends React.PureComponent {
     if (loadMore) {
       offset += limit + 1;
     }
-    const searchResult = await Service.fetchSearchedGIF({ searchString, offset, limit });
-    if (loadMore) {
-      gifs.push(...searchResult.data);
-    } else {
-      gifs = searchResult.data;
+    try {
+      const searchResult = await Service.fetchSearchedGIF({ searchString, offset, limit });
+      if (loadMore) {
+        gifs.push(...searchResult.data);
+      } else {
+        gifs = searchResult.data;
+      }
+      this.setState({
+        gifs,
+        customSearch: true,
+        offset,
+        loading: false,
+        error: false
+      });
+    } catch (e) {
+      this.setState({
+        gifs: [],
+        error: true,
+        loading: false
+      });
     }
-    this.setState({
-      gifs,
-      customSearch: true,
-      offset,
-      loading: false
-    });
   }
 
   enterPressed = (event) => {
@@ -83,8 +115,8 @@ export default class Home extends React.PureComponent {
       return;
     }
     if (
-      window.innerHeight + document.documentElement.scrollTop
-        === document.documentElement.offsetHeight && customSearch
+      (window.innerHeight + document.documentElement.scrollTop
+        === document.documentElement.offsetHeight) && customSearch
     ) {
       this.getGIF(true);
     }
@@ -96,9 +128,23 @@ export default class Home extends React.PureComponent {
     </div>
   )
 
+  renderNoResultsFound = () => (
+    <div className="empty-state-container">
+      <i className="material-icons">sentiment_dissatisfied</i>
+      <span>OOPS! No results Found. Please try some other text.</span>
+    </div>
+  )
+
+  renderError = () => (
+    <div className="empty-state-container">
+      <i className="material-icons">error</i>
+      <span>OOPS! Something went wrong. Please try after some time.</span>
+    </div>
+  )
+
   render () {
     const {
-      gifs, searchString, customSearch, loading
+      gifs, searchString, customSearch, loading, error
     } = this.state;
     const buttonClass = searchString ? 'button-active' : 'button-disabled';
     return (
@@ -113,6 +159,13 @@ export default class Home extends React.PureComponent {
               placeholder="Search GIF"
               onKeyPress={this.enterPressed}
             />
+            <i
+              className={`material-icons ${searchString.length ? 'opaque' : ''}`}
+              onClick={this.clearSearch}
+              role="presentation"
+            >
+              clear
+            </i>
           </div>
           <button onClick={this.onClick} type="submit" className={`button ${buttonClass}`}>Search</button>
         </div>
@@ -122,7 +175,10 @@ export default class Home extends React.PureComponent {
           {' '}
           {customSearch ? `results for "${searchString}"...` : '"trending" GIFs...'}
         </div>
-        {gifs.length && !loading ? <GIFView gifs={gifs} /> : this.renderLoader()}
+        {loading && this.renderLoader()}
+        {error && this.renderError()}
+        {((!gifs || !gifs.length) && !error && !loading) ? this.renderNoResultsFound() : null}
+        {gifs && gifs.length ? <GIFView gifs={gifs} /> : null}
       </Fragment>
     );
   }
