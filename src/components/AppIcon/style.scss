@@ -1,0 +1,66 @@
+@mixin menulines {
+  width: 1rem;
+  height: 0.1rem;
+  background: white;
+}
+
+$topMenuLines: 0.5rem;
+
+body{
+  margin: 0;
+  padding: 0;
+}
+.menugroup{
+  height: 2rem;
+  width: 2rem;
+  border: 0.3rem solid white;
+  border-radius: 0.3rem; 
+  padding: 0.2rem;
+  animation: load 2s infinite alternate;
+}
+.menu{
+  @include menulines;
+  position: relative;
+  top: 46%;
+  animation: menuHide 2s infinite alternate;
+  &:before,&:after{
+     position: absolute;
+     content: '';
+    @include menulines;
+  }
+  &:before{
+    top: -($topMenuLines);
+    animation: rotateUpperLine 2s infinite alternate;
+    
+  }
+  &:after{
+    top: $topMenuLines;
+    animation: rotateLowerLine 2s infinite alternate;
+  }
+}
+@keyframes load {
+  to{
+    background: white;
+  }
+}
+
+@keyframes menuHide{
+  to{
+    width: 0;
+    height: 0;
+  }
+}
+
+@keyframes rotateUpperLine {
+  to {
+    transform: rotate(18deg);
+    background: black;
+  }
+}
+
+@keyframes rotateLowerLine {
+  to {
+    transform: rotate(-18deg);
+    background: black;
+  }
+}
