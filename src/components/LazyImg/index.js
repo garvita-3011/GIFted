@@ -91,6 +91,7 @@ class LazyLoadImage extends React.Component {
       <img
         {...props}
         className={`${clsName} lazy-img-loader`}
+        style={{ height: '200px', width: '300px' }}
         ref={this.onEleLoad}
         onClick={onClick}
         alt={title}
