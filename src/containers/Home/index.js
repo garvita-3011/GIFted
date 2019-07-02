@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import debounce from 'lodash.debounce';
 import Service from '../../service';
-import LazyLoadImage from '../../components/LazyImg';
 import './style.scss';
+import GIFView from '../../components/GIFView';
 
 
 export default class Home extends React.PureComponent {
@@ -10,14 +10,12 @@ export default class Home extends React.PureComponent {
     super(props);
     this.state = {
       gifs: [],
-      playingId: '',
       searchString: '',
       loading: false,
       error: false,
       offset: 0,
       customSearch: false,
-      limit: 25,
-      isHovered: {}
+      limit: 25
     };
 
     window.onscroll = debounce(this.onScroll, 100);
@@ -33,13 +31,6 @@ export default class Home extends React.PureComponent {
       gifs: trending.data,
       loading: false,
       offset: 0
-    });
-  }
-
-  animateSrc = (item) => {
-    const { playingId } = this.state;
-    this.setState({
-      playingId: playingId !== item.id ? item.id : ''
     });
   }
 
@@ -60,7 +51,7 @@ export default class Home extends React.PureComponent {
     }
     let { offset, gifs } = this.state;
     this.setState({
-      loading: true
+      loading: !loadMore
     });
     if (loadMore) {
       offset += limit + 1;
@@ -99,22 +90,19 @@ export default class Home extends React.PureComponent {
     }
   }
 
-  handleMouseEnter = index => {
-    this.setState(prevState => ({ isHovered: { ...prevState.isHovered, [index]: true } }));
-  };
-
-  handleMouseLeave = index => {
-    this.setState(prevState => ({ isHovered: { ...prevState.isHovered, [index]: false } }));
-  };
-
+  renderLoader = () => (
+    <div className="loader-container">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" alt="" />
+    </div>
+  )
 
   render () {
     const {
-      gifs, playingId, searchString, customSearch, isHovered
+      gifs, searchString, customSearch, loading
     } = this.state;
     const buttonClass = searchString ? 'button-active' : 'button-disabled';
     return (
-      <div>
+      <Fragment>
         <div className="search-box">
           <div className="input-div">
             <input
@@ -132,42 +120,10 @@ export default class Home extends React.PureComponent {
         <div className="gif-header">
             Showing
           {' '}
-          {customSearch ? `"${searchString}"` : '"trending"'}
+          {customSearch ? `results for "${searchString}"...` : '"trending" GIFs...'}
         </div>
-        <div className="main-container">
-          {gifs.length ? gifs.map((item, index) => {
-            const isPlaying = item.id === playingId;
-            const imgSrc = isPlaying ? 'fixed_height' : 'fixed_height_still';
-            const imgOpacityClass = isPlaying ? 'opaque' : 'transparent';
-            const elevationClass = isPlaying ? 'elevation' : '';
-            return (
-              <div
-                key={item.id}
-                className="gif-container"
-                onClick={this.animateSrc.bind(this, item)}
-                onMouseEnter={() => this.handleMouseEnter(index)}
-                onMouseLeave={() => this.handleMouseLeave(index)}
-                role="presentation"
-              >
-                {isHovered[index]
-                && (
-                  <div className="gif-overlay">
-                    <i className="material-icons">{!isPlaying ? 'play_arrow' : 'pause'}</i>
-                  </div>
-                )
-                }
-                <LazyLoadImage
-                  src={item.images[imgSrc].url}
-                  alt="gif"
-                  clsName={`gif-view ${imgOpacityClass} ${elevationClass}`}
-                />
-              </div>
-            );
-          })
-            : null
-          }
-        </div>
-      </div>
+        {gifs.length && !loading ? <GIFView gifs={gifs} /> : this.renderLoader()}
+      </Fragment>
     );
   }
 }

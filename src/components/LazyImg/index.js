@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import scrollListener from './scrollListener';
-import style from './lazyload.scss';
+import './style.scss';
 
 const imageLoaded = {};
 class LazyLoadImage extends React.Component {
   static propTypes = {
-    src: PropTypes.string.isRequired,
-    width: PropTypes.string,
-    height: PropTypes.string
+    src: PropTypes.string.isRequired
   }
 
   constructor (props) {
@@ -21,7 +19,6 @@ class LazyLoadImage extends React.Component {
     this.loadImage = this.loadImage.bind(this);
     this.onEleLoad = this.onEleLoad.bind(this);
     this.onImgLoaded = this.onImgLoaded.bind(this);
-    this.onImgLoadError = this.onImgLoadError.bind(this);
     if (!this.state.loadImg) {
       this.listenerId = scrollListener.subscribe(this.loadImage);
     }
@@ -29,7 +26,15 @@ class LazyLoadImage extends React.Component {
   }
 
   shouldComponentUpdate (nextProps, nextState) {
-    return nextState.loadImg !== this.state.loadImg || nextProps.src !== this.props.src;
+    const { loadImg } = this.state;
+    const { src } = this.props;
+    return nextState.loadImg !== loadImg || nextProps.src !== src;
+  }
+
+  componentWillUnmount () {
+    if (this.listenerId) {
+      scrollListener.unsubscribe(this.listenerId);
+    }
   }
 
   onEleLoad (e) {
@@ -38,7 +43,9 @@ class LazyLoadImage extends React.Component {
   }
 
   loadImage () {
-    if (this.state.loadImg) {
+    const { loadImg } = this.state;
+    const { src } = this.props;
+    if (loadImg) {
       return;
     }
     if (!this._elem) {
@@ -49,31 +56,22 @@ class LazyLoadImage extends React.Component {
         return;
       }
       const windowHeight = window.innerHeight;
-      const relativePosition = this._elem.getBoundingClientRect && this._elem.getBoundingClientRect() || {};
+      const relativePosition = (this._elem.getBoundingClientRect && this._elem.getBoundingClientRect()) || {};
       const yoffset = relativePosition.y || 0;
       if (windowHeight >= yoffset) {
         this.setState({ loadImg: true });
         if (this.listenerId) {
           scrollListener.unsubscribe(this.listenerId);
         }
-        imageLoaded[this.props.src] = true;
+        imageLoaded[src] = true;
       }
     });
   }
 
-  onImgLoadError () {
-    this.props.onError && this.props.onError();
-  }
-
   onImgLoaded () {
+    const { index, onImgLoaded } = this.props;
     this._elem.classList.add('loaded');
-    this.props.onImgLoaded && this.props.onImgLoaded();
-  }
-
-  componentWillUnmount () {
-    if (this.listenerId) {
-      scrollListener.unsubscribe(this.listenerId);
-    }
+    onImgLoaded && onImgLoaded(index);
   }
 
   render () {
@@ -81,17 +79,25 @@ class LazyLoadImage extends React.Component {
       onError: this.onImgLoadError
     };
 
-    const { cachedImg, src, clsName } = this.props;
+    const {
+      src, clsName, onClick, title = ''
+    } = this.props;
     const { loadImg } = this.state;
-
-    if (!cachedImg) {
-      props.onLoad = this.onImgLoaded;
-    }
 
     if (loadImg) {
       props.src = src;
     }
-    return <img {...props} className={clsName} style={{ height: '200px', width: '300px' }} ref={this.onEleLoad} onClick={this.props.onClick} />;
+    return (
+      <img
+        {...props}
+        className={`${clsName} lazy-img-loader`}
+        ref={this.onEleLoad}
+        onClick={onClick}
+        alt={title}
+        role="presentation"
+        onLoad={this.onImgLoaded}
+      />
+    );
   }
 }
 
