@@ -3,4 +3,65 @@ $disabledColor: rgba(0, 0, 0, 0.26);
 $secondaryColor: #ddd;
 $primaryBgColor: #1976d2;
 $disabledBgColor: rgba(0, 0, 0, 0.12);
-$primaryBorderColor: #1976d2
+$primaryBorderColor: #1976d2;
+
+$themes: (
+  light: (
+    backgroundLight: #fff,
+    backgroundDark: #1976d2,
+    textColor: #fff,
+    textDark: #000,
+    textLight: #919394,
+    contentColor: #b9baba,  
+    iconColor: #000,
+    activeColor: #1976d2
+    
+  ),
+  dark: (
+    backgroundLight: #131b1f,
+    backgroundDark: #000,
+    textColor: #fff,
+    textDark: #fff,
+    textLight: #b9baba,
+    iconColor: #fff,
+  ),
+);
+
+$color-schemes: (
+  scheme-default: (
+    backgroundColor: #1976d2,
+  ),
+  scheme-cs1: (
+    backgroundColor: #e68a00,
+  )
+);
+
+@mixin customize($arg: theme) {
+  $array: $themes;
+  $prefix: theme;
+
+  @if ($arg == theme) {
+    $array: $themes;
+    $prefix: theme;
+  } @else {
+    $array: $color-schemes;
+    $prefix: color;
+  }
+
+  @each $theme, $map in $array {
+    .#{$prefix}-#{$theme} & {
+      $array-map: () !global;
+      @each $key, $submap in $map {
+        $value: map-get(map-get($array, $theme), '#{$key}');
+        $array-map: map-merge($array-map, ($key: $value)) !global;
+      }
+
+      @content;
+      $array-map: null !global;
+    }
+  }
+}
+
+@function getValue($key) {
+  @return map-get($array-map, $key);
+}

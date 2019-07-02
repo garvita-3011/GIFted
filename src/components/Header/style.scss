@@ -1,7 +1,9 @@
 @import '../../style/common.scss';
 
 .header {
-  background: $primaryBgColor;
+  @include customize('light') {
+    background-color: getValue(backgroundDark);
+  }
   width: 100%;
     display: flex;
     z-index: 1100;
