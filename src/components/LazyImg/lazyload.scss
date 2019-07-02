@@ -1,0 +1,10 @@
+.lazy-img-loader {
+  opacity: 0;
+  &.loaded {
+    opacity: 1;
+    transition: opacity 0.1s ease-in;
+    -webkit-transition: opacity 0.1s ease-in;
+    -moz-transition: opacity 0.1s ease-in;
+    -o-transition: opacity 0.1s ease-in;
+  }
+}
