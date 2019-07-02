@@ -25,6 +25,9 @@ export default class Home extends React.PureComponent {
     this.getTrendingGIFs();
   }
 
+  /*
+  * returns a list of trending gifs
+  */
   getTrendingGIFs = async () => {
     try {
       const trending = await Service.fetchTrendingGIFs();
@@ -43,6 +46,10 @@ export default class Home extends React.PureComponent {
     }
   }
 
+  /*
+  * sets the value of search string as entered in input box, resets gifs list to trending if search is empty
+  */
+
   searchGIF = (event) => {
     this.setState({
       searchString: event.target.value
@@ -54,18 +61,42 @@ export default class Home extends React.PureComponent {
     });
   }
 
+  /*
+  * clears the search input box and resets the gifs list to trending
+  */
+
   clearSearch = () => {
     this.setState({
       searchString: '',
-      customSearch: false,
+      customSearch: false
     }, () => {
       this.getTrendingGIFs();
     });
   }
 
+  /*
+  * search button click
+  */
+
   onClick = () => {
     this.getGIF(false);
   }
+
+  /*
+  * search button enter key press
+  */
+
+  enterPressed = (event) => {
+    const code = event.keyCode || event.which;
+    if (code === 13) {
+      this.getGIF(false);
+    }
+  }
+
+  /*
+  * hits GIPHY search API to return the list if gifs matching search text
+  * Empty state rendred if no matching gif is found.
+  */
 
   getGIF = async (loadMore = false) => {
     const { searchString, limit } = this.state;
@@ -102,12 +133,9 @@ export default class Home extends React.PureComponent {
     }
   }
 
-  enterPressed = (event) => {
-    const code = event.keyCode || event.which;
-    if (code === 13) {
-      this.getGIF(false);
-    }
-  }
+  /*
+  * on scroll down fetches next set of gifs matching the search string.
+  */
 
   onScroll = () => {
     const { loading, error, customSearch } = this.state;
@@ -122,11 +150,19 @@ export default class Home extends React.PureComponent {
     }
   }
 
+  /*
+  * renders the loading state
+  */
+
   renderLoader = () => (
     <div className="loader-container">
       <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" alt="" />
     </div>
   )
+
+  /*
+  * renders the empty state
+  */
 
   renderNoResultsFound = () => (
     <div className="empty-state-container">
@@ -134,6 +170,10 @@ export default class Home extends React.PureComponent {
       <span>OOPS! No results Found. Please try some other text.</span>
     </div>
   )
+
+  /*
+  * renders the error state
+  */
 
   renderError = () => (
     <div className="empty-state-container">
