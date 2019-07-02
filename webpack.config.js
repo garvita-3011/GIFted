@@ -7,12 +7,11 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 module.exports = {
   entry: {
-    bundle: path.join(__dirname, '/src/index.js'),
-    babel_polyfill: '@babel/polyfill'
+    bundle: path.join(__dirname, '/src/index.js')
   },
   output: {
     path: path.join(__dirname, 'public'),
-    filename: NODE_ENV === 'development' ? '[name].js' : '[name][hash:6].js'
+    filename: '[name].js'
   },
   devtool: NODE_ENV === 'development' ? 'source-map' : 'none',
   watch: NODE_ENV === 'development',
