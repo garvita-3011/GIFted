@@ -1,12 +1,12 @@
 import { canUseDOM } from 'fbjs/lib/ExecutionEnvironment';
-import { debounce } from '../../utils';
+import debounce from 'lodash.debounce';
 
 class WindowScrollListener {
   constructor () {
     this._id = 0;
     this._listeners = {};
     this._initialized = false;
-    this._publish = this._publish.bind(this);
+    this._publishDebounce = debounce(this._publish, 5);
     this._scrollValue = 0;
   }
 
@@ -26,7 +26,7 @@ class WindowScrollListener {
    */
   subscribe (listener) {
     if (typeof listener !== 'function') {
-      console.trace && console.trace('WindowScrollListener:: listener should be a function');
+      console.warn && console.warn('WindowScrollListener:: listener should be a function');
       return;
     }
     this._init();
@@ -41,12 +41,12 @@ class WindowScrollListener {
    */
   unsubscribe (id) {
     if (typeof id === 'undefined') {
-      return console.trace('WindowScrollListener:: Expects an id to unsubscribe a listener');
+      return console.warn('WindowScrollListener:: Expects an id to unsubscribe a listener');
     }
     return delete this._listeners[id];
   }
 
-  _publish () {
+  _publish = () => {
     this._scrollValue = typeof window.scrollY !== 'undefined' ? window.scrollY : window.pageYOffset;
     for (const listenerId in this._listeners) {
       if (this._listeners[listenerId]) {
@@ -63,7 +63,7 @@ class WindowScrollListener {
     if (!canUseDOM) {
       return;
     }
-    window.addEventListener('scroll', this._publish, { passive: true });
+    window.addEventListener('scroll', this._publishDebounce, { passive: true });
     this._initialized = true;
   }
 }
