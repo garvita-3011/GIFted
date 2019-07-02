@@ -1,18 +1,9 @@
 import ENDPOINTS from './endpoints';
 
 export default class Service {
-  static async get (url, params = {}, headers) {
-    let httpURL = url;
-    if (params.queryParams) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const key in params.queryParams) {
-        if (params.queryParams[key]) {
-          httpURL = httpURL.replace(`?${key}`, params.queryParams[key]);
-        }
-      }
-    }
+  static async get (url, headers) {
     try {
-      const res = await fetch(httpURL, {
+      const res = await fetch(url, {
         method: 'GET',
         headers: {
           ...headers
@@ -21,11 +12,18 @@ export default class Service {
       const response = await res.text();
       return JSON.parse(response);
     } catch (error) {
-      console.log('error', error);
+      console.error('error', error);
+      return null;
     }
   }
 
   static fetchTrendingGIFs () {
     return Service.get(ENDPOINTS.trending);
+  }
+
+  static fetchSearchedGIF ({ searchString, offset, limit }) {
+    let url = ENDPOINTS.search;
+    url = url.replace('{searchKey}', searchString).replace('{offset}', offset).replace('{limit}', limit);
+    return Service.get(url);
   }
 }
