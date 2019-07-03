@@ -10,7 +10,7 @@ Clone the project and use npm to install the packages
 npm installl
 ```
 
-To run the project:
+To run the project on localhost:
 
 ```bash
 npm run dev
